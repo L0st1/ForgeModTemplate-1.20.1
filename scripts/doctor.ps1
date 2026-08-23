@@ -40,7 +40,11 @@ foreach ($relative in @('config\network.properties', 'config\network.local.prope
     $path = Join-Path $repoRoot $relative
     if (Test-Path -LiteralPath $path) {
         Get-Content -LiteralPath $path -Encoding UTF8 | ForEach-Object {
-            if ($_ -match '^\s*([^#][^=]*)=(.*)$') { $network[$matches[1].Trim()] = $matches[2].Trim() }
+            if ($_ -match '^\s*([^#][^=]*)=(.*)$') {
+                $networkKey = $matches[1].Trim()
+                $networkValue = $matches[2].Trim()
+                $network[$networkKey] = $networkValue
+            }
         }
     }
 }

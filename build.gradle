@@ -93,6 +93,9 @@ dependencies {
 def resourceProperties = [
         minecraft_version: minecraft_version,
         forge_version: forge_version,
+        forge_loader_version_range: forge_loader_version_range,
+        forge_dependency_version_range: forge_dependency_version_range,
+        minecraft_version_range: minecraft_version_range,
         mod_id: mod_id,
         mod_name: mod_name,
         mod_version: mod_version,

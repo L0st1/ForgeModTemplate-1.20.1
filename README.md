@@ -1,6 +1,35 @@
-# Forge 1.20.1 Mod 开发模板
+# Forge Mod 多版本开发模板
 
-这是一套可参数化初始化的 Minecraft Forge Mod 开发模板，固定基线为 Minecraft 1.20.1、Forge 47.4.0、Java 17 和 Gradle 8.8。模板默认生成双端安全的最小工程，可按需加入 Mixin、配置、网络通信和 GameTest。
+这是一套可参数化初始化的 Minecraft Forge Mod 开发模板，当前基线为 Minecraft 1.20.1、Forge 47.4.0、Java 17 和 Gradle 8.8。模板默认生成双端安全的最小工程，可按需加入 Mixin、配置、网络通信和 GameTest。
+
+模板采用“一个 Minecraft 版本一个 Git 分支”的维护方式。同一个 Mod 的不同 Minecraft 大版本通常需要分别编译，不能仅通过 `mods.toml` 的版本范围共用一个 JAR。
+
+## 作为 GitHub Template 使用
+
+在 GitHub 仓库的 `Settings > General` 中启用 `Template repository`。用户点击 `Use this template` 创建新仓库后，在新仓库中运行：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\init-template.ps1
+```
+
+初始化器会替换 Mod 身份信息并移除模板蓝图。模板仓库本身不要运行初始化器；每次使用模板都应通过 GitHub 创建新的仓库。
+
+## 创建 Minecraft 版本分支
+
+当前仓库的 `main` 分支基于 Minecraft 1.20.1。准备适配新版本时，在干净工作区运行：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\create-version-branch.ps1 `
+  -Version 1.21.1 `
+  -ForgeVersion 52.0.0 `
+  -ForgeLoaderRange '[52,)' `
+  -MinecraftRange '[1.21.1,1.22)' `
+  -JavaVersion 21
+```
+
+脚本会创建 `mc-1.21.1` 分支并更新构建配置。Forge 版本、加载器范围和 Java 版本必须以目标版本对应的 Forge MDK 为准；创建分支后仍需根据 Forge API 变化调整源码。
+
+每个版本分支都应单独构建，并在 GitHub Releases 发布带版本后缀的 JAR，例如 `my_mod-0.1.0-mc1.21.1.jar`。
 
 ## 快速开始
 
@@ -95,5 +124,6 @@ openspec/                     规格与变更记录
 
 - 初始化器第一版面向 Windows PowerShell。
 - 生成项目可通过 `gradlew`/`gradlew.bat` 在其他平台构建。
-- 不支持 Fabric、NeoForge、多加载器或其他 Minecraft 版本。
+- 当前基线只保证 Minecraft 1.20.1 + Forge 47.4.0；其他版本需要建立对应分支并完成源码适配。
+- 不支持 Fabric、NeoForge 或多加载器共用源码。
 - 不包含 CurseForge、Modrinth 等发布流程。
