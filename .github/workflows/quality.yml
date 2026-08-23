@@ -27,4 +27,4 @@ jobs:
         uses: gradle/actions/setup-gradle@v6
 
       - name: Run quality checks
-        run: ./gradlew qualityCheck --no-daemon
+        run: ./gradlew -b quality.gradle qualityCheck --no-daemon

@@ -22,7 +22,7 @@
 
 ### 使用 Spotless 作为唯一格式化工具
 
-在 `build.gradle` 中接入 Spotless，并将格式范围限定为模板管理的 Java 源码；使用 `google-java-format` 统一空白、换行与 import 格式。公开 `spotlessApply` 供开发者修复，公开 `spotlessCheck` 供自动化验证。
+在独立的 `quality.gradle` 中接入 Spotless，并将格式范围限定为模板管理的 Java 源码；使用 `google-java-format` 统一空白、换行与 import 格式。公开 `spotlessApply` 供开发者修复，公开 `spotlessCheck` 供自动化验证。独立脚本不加载 ForgeGradle，避免纯质量校验依赖 Minecraft 构建环境。
 
 选择原因：Spotless 可直接由 Gradle Wrapper 下载并执行，兼容本仓库的 Java 17 / Gradle 8.8 基线，且格式化规则不需要每位贡献者单独配置 IDE。
 
@@ -30,7 +30,7 @@
 
 ### 使用 Gradle 内置 PMD 进行最小静态分析
 
-启用 Gradle 的 PMD 插件，版本显式锁定到与 Java 17 兼容的发行版，并仅使用 Java `errorprone` 规则类别中的高优先级规则。生产与测试源码均纳入分析；生成源码和构建输出不纳入范围。
+在 `quality.gradle` 中启用 Gradle 的 PMD 插件，版本显式锁定到与 Java 17 兼容的发行版，并仅使用 Java `errorprone` 规则类别中的高优先级规则。生产与测试源码均纳入分析；生成源码和构建输出不纳入范围。
 
 选择原因：PMD 是 Gradle 原生支持的源代码分析器，不依赖 Forge 的编译产物，因此独立质量校验不必解析或启动完整游戏构建。高优先级错误规则能避免早期规则噪声。
 
@@ -38,7 +38,7 @@
 
 ### 提供统一的 `qualityCheck` 任务并接入常规构建
 
-定义 `qualityCheck` 聚合任务，使其依赖格式检查和 PMD 主/测试源码检查；同时将格式检查纳入 Gradle 的 `check` 生命周期，确保既有 `build` 入口不会绕过格式约束。hook、CI 与文档统一调用 `qualityCheck`，避免三处命令逐渐漂移。
+在 `quality.gradle` 中定义 `qualityCheck` 聚合任务，使其依赖格式检查和 PMD 主/测试源码检查。hook、CI 与文档统一调用 `./gradlew -b quality.gradle qualityCheck`，避免纯质量校验先解析 ForgeGradle。
 
 选择原因：质量校验无需完整 Forge 编译即可提供快速反馈，而常规构建仍会包含所有质量检查。
 
@@ -46,7 +46,7 @@
 
 在 `.githooks/pre-commit` 保存 POSIX shell hook，通过 Gradle 的显式安装任务写入仓库本地 Git 配置的 `core.hooksPath`。安装任务在发现已有且不同的本地 hooks 路径时 SHALL 失败并提示人工处理，避免静默覆盖现有开发者配置。
 
-hook 仅调用 `./gradlew qualityCheck` 并在失败时阻止提交；它不调用自动修复任务。该脚本可由 Git for Windows 的 shell 和 Unix shell 执行。
+hook 仅调用 `./gradlew -b quality.gradle qualityCheck` 并在失败时阻止提交；它不调用自动修复任务。该脚本可由 Git for Windows 的 shell 和 Unix shell 执行。
 
 选择原因：无需安装 Python `pre-commit`、Node 或第三方 Gradle hook 插件，且 hook 内容能随模板版本演进。
 
@@ -54,7 +54,7 @@ hook 仅调用 `./gradlew qualityCheck` 并在失败时阻止提交；它不调�
 
 ### 将远端质量工作流限定为 PR 与默认分支推送
 
-新增 `.github/workflows/quality.yml`，使用 Java 17、Gradle Wrapper 和 Gradle 缓存执行 `qualityCheck`。工作流在未限定目标分支的 `pull_request` 事件及 `master` 的 `push` 事件上触发；工作流只授予读取仓库内容所需的最小权限。
+新增 `.github/workflows/quality.yml`，使用 Java 17、Gradle Wrapper 和 Gradle 缓存执行 `./gradlew -b quality.gradle qualityCheck`。工作流在未限定目标分支的 `pull_request` 事件及 `master` 的 `push` 事件上触发；工作流只授予读取仓库内容所需的最小权限。
 
 选择原因：PR 事件覆盖功能分支提交的评审反馈，`master` 推送覆盖直接提交和合并结果，同时避免每次 PR 更新都因所有分支 `push` 而重复运行。未限制 PR 目标分支可兼容仓库的 Minecraft 版本维护分支。
 

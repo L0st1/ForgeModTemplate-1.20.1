@@ -10,9 +10,9 @@ else
     gradle=./gradlew
 fi
 
-if ! "$gradle" qualityCheck; then
+if ! "$gradle" -b quality.gradle qualityCheck; then
     echo >&2
     echo '提交已取消：代码质量校验失败。' >&2
-    echo '格式问题可运行 ./gradlew spotlessApply 修复；其他问题请查看 Gradle 输出。' >&2
+    echo '格式问题可运行 ./gradlew -b quality.gradle spotlessApply 修复；其他问题请查看 Gradle 输出。' >&2
     exit 1
 fi

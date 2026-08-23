@@ -93,11 +93,11 @@ powershell -ExecutionPolicy Bypass -File .\scripts\build-local.ps1
 运行与 CI 相同的格式和静态分析校验：
 
 ```powershell
-.\gradlew.bat qualityCheck
+.\gradlew.bat -b quality.gradle qualityCheck
 ```
 
 ```bash
-./gradlew qualityCheck
+./gradlew -b quality.gradle qualityCheck
 ```
 
 首次克隆仓库后，安装受版本控制的 pre-commit hook：
@@ -110,7 +110,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\build-local.ps1
 ./gradlew installGitHooks
 ```
 
-安装后，每次 `git commit` 都会运行 `qualityCheck`；校验失败会取消提交，但不会自动修改暂存区。格式问题可运行 `spotlessApply` 修复。若需要卸载本模板安装的 hook 路径，可执行 `git config --unset --local core.hooksPath`。
+安装后，每次 `git commit` 都会运行基于 `quality.gradle` 的 `qualityCheck`；校验失败会取消提交，但不会自动修改暂存区。格式问题可运行 `./gradlew -b quality.gradle spotlessApply` 修复。若需要卸载本模板安装的 hook 路径，可执行 `git config --unset --local core.hooksPath`。
 
 GitHub Actions 会在所有 PR 创建、重新打开和更新时，以及向默认分支 `master` 推送时运行同一校验。建议在 GitHub 分支保护中将 `Format and static analysis` 设为 `master` 的必需检查。
 

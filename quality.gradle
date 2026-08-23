@@ -1,0 +1,42 @@
+plugins {
+    id 'java'
+    id 'com.diffplug.spotless' version '8.10.0'
+    id 'pmd'
+}
+
+repositories {
+    mavenCentral()
+}
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(17)
+}
+
+spotless {
+    java {
+        target 'src/*/java/**/*.java', 'template/**/*.java.template'
+        googleJavaFormat('1.28.0').skipJavadocFormatting()
+    }
+}
+
+pmd {
+    toolVersion = '7.24.0'
+    consoleOutput = true
+    ruleSets = ['category/java/errorprone.xml']
+    rulesMinimumPriority = 3
+}
+
+tasks.withType(Pmd).configureEach {
+    // lint 只检查源码规则，不依赖 Forge/Minecraft 生成的编译类路径。
+    classpath = files()
+    reports {
+        xml.required = false
+        html.required = true
+    }
+}
+
+tasks.register('qualityCheck') {
+    group = 'verification'
+    description = 'Runs Java formatting and static-analysis checks without ForgeGradle.'
+    dependsOn 'spotlessCheck', 'pmdMain', 'pmdTest'
+}
