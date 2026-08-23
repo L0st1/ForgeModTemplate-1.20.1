@@ -1,0 +1,4 @@
+interface:
+  display_name: "Forge Mod Development"
+  short_description: "Forge 1.20.1 模组开发、端侧设计与构建验证"
+  default_prompt: "Use $forge-mod-development to implement and verify a Forge 1.20.1 mod change."

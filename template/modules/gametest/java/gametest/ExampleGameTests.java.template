@@ -1,0 +1,17 @@
+package __JAVA_PACKAGE__.gametest;
+
+import net.minecraft.gametest.framework.GameTest;
+import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraftforge.gametest.GameTestHolder;
+
+import static __JAVA_PACKAGE__.__MAIN_CLASS__.MOD_ID;
+
+@GameTestHolder(MOD_ID)
+public final class ExampleGameTests {
+    private ExampleGameTests() {}
+
+    @GameTest(template = "empty")
+    public static void templateLoads(GameTestHelper helper) {
+        helper.succeed();
+    }
+}

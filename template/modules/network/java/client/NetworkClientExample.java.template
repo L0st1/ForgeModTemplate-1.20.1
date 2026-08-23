@@ -1,0 +1,43 @@
+package __JAVA_PACKAGE__.client;
+
+import com.mojang.blaze3d.platform.InputConstants;
+import net.minecraft.client.KeyMapping;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
+import org.lwjgl.glfw.GLFW;
+import __JAVA_PACKAGE__.network.ExampleC2SPacket;
+import __JAVA_PACKAGE__.network.NetworkHandler;
+
+import static __JAVA_PACKAGE__.__MAIN_CLASS__.MOD_ID;
+
+@Mod.EventBusSubscriber(modid = MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+public final class NetworkClientExample {
+    private static final KeyMapping SEND_EXAMPLE = new KeyMapping(
+            "key.__MOD_ID__.send_example",
+            InputConstants.Type.KEYSYM,
+            GLFW.GLFW_KEY_N,
+            "key.categories.__MOD_ID__"
+    );
+
+    private NetworkClientExample() {}
+
+    @SubscribeEvent
+    public static void registerKeyMappings(RegisterKeyMappingsEvent event) {
+        event.register(SEND_EXAMPLE);
+    }
+
+    @Mod.EventBusSubscriber(modid = MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
+    public static final class ForgeEvents {
+        private ForgeEvents() {}
+
+        @SubscribeEvent
+        public static void onClientTick(TickEvent.ClientTickEvent event) {
+            if (event.phase == TickEvent.Phase.END && SEND_EXAMPLE.consumeClick()) {
+                NetworkHandler.CHANNEL.sendToServer(new ExampleC2SPacket());
+            }
+        }
+    }
+}

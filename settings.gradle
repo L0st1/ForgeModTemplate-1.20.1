@@ -1,0 +1,41 @@
+pluginManagement {
+    def defaultNetworkFile = file('config/network.properties')
+    def localNetworkFile = file('config/network.local.properties')
+    def networkProperties = new Properties()
+
+    if (defaultNetworkFile.exists()) {
+        defaultNetworkFile.withInputStream { networkProperties.load(it) }
+    }
+    if (localNetworkFile.exists()) {
+        def localProperties = new Properties()
+        localNetworkFile.withInputStream { localProperties.load(it) }
+        networkProperties.putAll(localProperties)
+    }
+
+    def enabledValue = System.getenv('MC_MOD_PROXY_ENABLED') ?: networkProperties.getProperty('proxy.enabled', 'false')
+    def proxyEnabled = Boolean.parseBoolean(enabledValue)
+    def proxyHost = System.getenv('MC_MOD_PROXY_HOST') ?: networkProperties.getProperty('proxy.host', '127.0.0.1')
+    def proxyPort = System.getenv('MC_MOD_PROXY_PORT') ?: networkProperties.getProperty('proxy.port', '7890')
+    def nonProxyHosts = networkProperties.getProperty('proxy.nonProxyHosts', 'localhost|127.*')
+
+    if (proxyEnabled && !System.getProperty('http.proxyHost') && !System.getProperty('https.proxyHost')) {
+        System.setProperty('http.proxyHost', proxyHost)
+        System.setProperty('http.proxyPort', proxyPort)
+        System.setProperty('https.proxyHost', proxyHost)
+        System.setProperty('https.proxyPort', proxyPort)
+        System.setProperty('http.nonProxyHosts', nonProxyHosts)
+        System.setProperty('https.nonProxyHosts', nonProxyHosts)
+    }
+
+    gradle.ext.templateProxyEnabled = proxyEnabled
+    gradle.ext.templateProxyHost = proxyHost
+    gradle.ext.templateProxyPort = proxyPort
+
+    repositories {
+        gradlePluginPortal()
+        maven { url = 'https://maven.minecraftforge.net/' }
+        mavenCentral()
+    }
+}
+
+rootProject.name = providers.gradleProperty('mod_id').getOrElse('example_mod')

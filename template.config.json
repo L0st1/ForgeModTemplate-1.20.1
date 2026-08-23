@@ -1,0 +1,38 @@
+{
+  "templateVersion": 1,
+  "initializedStateFile": ".mcmod-template-state.json",
+  "defaults": {
+    "modId": "example_mod",
+    "modName": "Example Mod",
+    "modGroup": "com.example",
+    "javaPackage": "com.example.examplemod",
+    "mainClass": "ExampleMod",
+    "modVersion": "0.1.0",
+    "author": "Example Author",
+    "license": "MIT",
+    "description": "一个使用 Forge 1.20.1 模板创建的 Minecraft Mod。",
+    "mode": "blank",
+    "modules": []
+  },
+  "supportedModes": [
+    "blank",
+    "example"
+  ],
+  "supportedModules": [
+    "mixin",
+    "config",
+    "network",
+    "gametest"
+  ],
+  "tokens": {
+    "modId": "__MOD_ID__",
+    "modName": "__MOD_NAME__",
+    "modGroup": "__MOD_GROUP__",
+    "javaPackage": "__JAVA_PACKAGE__",
+    "mainClass": "__MAIN_CLASS__",
+    "modVersion": "__MOD_VERSION__",
+    "author": "__MOD_AUTHOR__",
+    "license": "__MOD_LICENSE__",
+    "description": "__MOD_DESCRIPTION__"
+  }
+}

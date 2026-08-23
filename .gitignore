@@ -1,0 +1,39 @@
+# eclipse
+bin
+*.launch
+.settings
+.metadata
+.classpath
+.project
+
+# idea
+out
+*.ipr
+*.iws
+*.iml
+.idea
+
+# gradle
+build
+.gradle
+.gradle-user/
+
+# generated classes and local runs
+bin
+run
+run-data
+
+# other
+eclipse
+
+# local template and developer state
+.migration-backup/
+.template-work/
+config/network.local.properties
+.mcmod-template-state.json
+.code-review-graph/
+*.local.properties
+*.deploy.local.*
+
+# Files from Forge MDK
+forge*changelog.txt

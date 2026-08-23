@@ -1,0 +1,33 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Forge: 环境诊断",
+      "type": "shell",
+      "command": "powershell",
+      "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "${workspaceFolder}\\scripts\\doctor.ps1"],
+      "linux": { "command": "pwsh", "args": ["-NoProfile", "-File", "${workspaceFolder}/scripts/doctor.ps1"] },
+      "osx": { "command": "pwsh", "args": ["-NoProfile", "-File", "${workspaceFolder}/scripts/doctor.ps1"] },
+      "problemMatcher": []
+    },
+    {
+      "label": "Forge: 构建 Mod",
+      "type": "shell",
+      "command": "powershell",
+      "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "${workspaceFolder}\\scripts\\build-local.ps1"],
+      "linux": { "command": "pwsh", "args": ["-NoProfile", "-File", "${workspaceFolder}/scripts/build-local.ps1"] },
+      "osx": { "command": "pwsh", "args": ["-NoProfile", "-File", "${workspaceFolder}/scripts/build-local.ps1"] },
+      "group": { "kind": "build", "isDefault": true },
+      "problemMatcher": ["$javac"]
+    },
+    {
+      "label": "Forge: 生成 IntelliJ Runs",
+      "type": "process",
+      "command": "${workspaceFolder}\\gradlew.bat",
+      "args": ["genIntellijRuns"],
+      "linux": { "command": "${workspaceFolder}/gradlew" },
+      "osx": { "command": "${workspaceFolder}/gradlew" },
+      "problemMatcher": []
+    }
+  ]
+}

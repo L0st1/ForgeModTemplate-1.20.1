@@ -1,0 +1,67 @@
+{
+  "Forge 双端安全主类": {
+    "prefix": "forge-mod-main",
+    "description": "不引用客户端类的 Forge Mod 主入口",
+    "body": [
+      "@Mod(${1:MainMod}.MOD_ID)",
+      "public final class ${1:MainMod} {",
+      "    public static final String MOD_ID = \"${2:mod_id}\";",
+      "",
+      "    public ${1:MainMod}() {",
+      "        $0",
+      "    }",
+      "}"
+    ]
+  },
+  "Forge 客户端事件订阅": {
+    "prefix": "forge-client-events",
+    "description": "仅在物理客户端加载的事件订阅类",
+    "body": [
+      "@Mod.EventBusSubscriber(modid = ${1:MainMod}.MOD_ID, bus = Mod.EventBusSubscriber.Bus.${2|MOD,FORGE|}, value = Dist.CLIENT)",
+      "public final class ${3:ClientEvents} {",
+      "    private ${3:ClientEvents}() {}",
+      "",
+      "    @SubscribeEvent",
+      "    public static void on${4:Event}(${5:EventType} event) {",
+      "        $0",
+      "    }",
+      "}"
+    ]
+  },
+  "Mixin RETURN 注入": {
+    "prefix": "forge-mixin-return",
+    "description": "在方法返回点读取或替换返回值",
+    "body": [
+      "@Inject(method = \"${1:method}\", at = @At(\"RETURN\"), cancellable = true)",
+      "private void ${2:afterMethod}(CallbackInfoReturnable<${3:ReturnType}> cir) {",
+      "    cir.setReturnValue(${4:cir.getReturnValue()});",
+      "}"
+    ]
+  },
+  "C2S 网络处理": {
+    "prefix": "forge-c2s-handler",
+    "description": "验证 sender 并切回服务端主线程",
+    "body": [
+      "public static void handle(${1:Message} message, Supplier<NetworkEvent.Context> contextSupplier) {",
+      "    var context = contextSupplier.get();",
+      "    context.enqueueWork(() -> {",
+      "        var sender = context.getSender();",
+      "        if (sender == null) return;",
+      "        $0",
+      "    });",
+      "    context.setPacketHandled(true);",
+      "}"
+    ]
+  },
+  "Forge GameTest": {
+    "prefix": "forge-gametest",
+    "description": "最小 Forge GameTest 方法",
+    "body": [
+      "@GameTest(template = \"empty\")",
+      "public static void ${1:testName}(GameTestHelper helper) {",
+      "    $0",
+      "    helper.succeed();",
+      "}"
+    ]
+  }
+}

@@ -1,0 +1,10 @@
+tasks.register('printNetworkConfiguration') {
+    group = 'verification'
+    description = 'Prints the proxy values prepared by settings.gradle without resolving ForgeGradle.'
+
+    doLast {
+        println "proxy.enabled=${gradle.ext.templateProxyEnabled}"
+        println "proxy.host=${gradle.ext.templateProxyHost}"
+        println "proxy.port=${gradle.ext.templateProxyPort}"
+    }
+}
