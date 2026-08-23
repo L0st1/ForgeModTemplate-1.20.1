@@ -13,6 +13,9 @@ jobs:
   quality:
     name: Format and static analysis
     runs-on: ubuntu-latest
+    env:
+      # 模板默认代理指向开发者本机；托管 runner 不存在该代理。
+      MC_MOD_PROXY_ENABLED: 'false'
     steps:
       - name: Check out source
         uses: actions/checkout@v6
