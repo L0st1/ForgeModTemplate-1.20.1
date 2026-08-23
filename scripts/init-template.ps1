@@ -139,6 +139,39 @@ function Expand-TemplateText([string]$Text) {
     return $result
 }
 
+function Sort-JavaImports([string]$SourceRoot) {
+    Get-ChildItem -LiteralPath $SourceRoot -Recurse -Filter '*.java' -File | ForEach-Object {
+        $lines = @(Get-Content -LiteralPath $_.FullName -Encoding UTF8)
+        $firstImport = -1
+        $lastImport = -1
+        for ($index = 0; $index -lt $lines.Count; $index++) {
+            if ($lines[$index] -match '^import\s+(?:static\s+)?[A-Za-z0-9_$.]+;$') {
+                if ($firstImport -lt 0) { $firstImport = $index }
+                $lastImport = $index
+            }
+        }
+        if ($firstImport -lt 0) { return }
+
+        $staticImports = New-Object System.Collections.Generic.List[string]
+        $regularImports = New-Object System.Collections.Generic.List[string]
+        foreach ($index in $firstImport..$lastImport) {
+            if ($lines[$index] -match '^import static ') { $staticImports.Add($lines[$index]) }
+            elseif ($lines[$index] -match '^import ') { $regularImports.Add($lines[$index]) }
+        }
+        $staticImports.Sort([System.StringComparer]::Ordinal)
+        $regularImports.Sort([System.StringComparer]::Ordinal)
+        $replacement = New-Object System.Collections.Generic.List[string]
+        $staticImports | ForEach-Object { $replacement.Add($_) }
+        if ($staticImports.Count -gt 0 -and $regularImports.Count -gt 0) { $replacement.Add('') }
+        $regularImports | ForEach-Object { $replacement.Add($_) }
+
+        $before = if ($firstImport -gt 0) { @($lines[0..($firstImport - 1)]) } else { @() }
+        $after = if ($lastImport -lt ($lines.Count - 1)) { @($lines[($lastImport + 1)..($lines.Count - 1)]) } else { @() }
+        $formatted = @($before + @($replacement) + $after)
+        Set-Content -LiteralPath $_.FullName -Value (($formatted -join [Environment]::NewLine).TrimEnd()) -Encoding UTF8
+    }
+}
+
 $workRoot = Join-Path $repoRoot ('.template-work\' + [guid]::NewGuid().ToString('N'))
 $backupRoot = Join-Path $workRoot 'backup'
 New-Item -ItemType Directory -Path $backupRoot -Force | Out-Null
@@ -205,7 +238,7 @@ try {
             (Expand-TemplateText (Get-Content -LiteralPath $importsFile -Raw -Encoding UTF8)).Trim() -split "`r?`n" | ForEach-Object { if ($_) { $imports.Add($_) } }
         }
         if (Test-Path -LiteralPath $initFile) {
-            (Expand-TemplateText (Get-Content -LiteralPath $initFile -Raw -Encoding UTF8)).Trim() -split "`r?`n" | ForEach-Object { if ($_) { $initializers.Add('        ' + $_) } }
+            (Expand-TemplateText (Get-Content -LiteralPath $initFile -Raw -Encoding UTF8)).Trim() -split "`r?`n" | ForEach-Object { if ($_) { $initializers.Add('    ' + $_) } }
         }
     }
     if ($Mode -eq 'example') {
@@ -213,12 +246,21 @@ try {
     }
 
     $mainText = Get-Content -LiteralPath $targetMainSource -Raw -Encoding UTF8
+    $lineEnding = [Environment]::NewLine
     $mainText = $mainText.Replace('package com.example.examplemod;', "package $JavaPackage;")
     $mainText = $mainText.Replace('ExampleMod', $MainClass)
     $mainText = $mainText.Replace('"example_mod"', '"' + $ModId + '"')
-    $mainText = $mainText.Replace('// __OPTIONAL_IMPORTS__', ($imports -join "`n"))
-    $mainText = $mainText.Replace('        // __OPTIONAL_INIT__', ($initializers -join "`n"))
+    $mainText = $mainText.Replace('// __OPTIONAL_IMPORTS__', ($imports -join $lineEnding))
+    $mainText = [regex]::Replace($mainText, '(?m)^[ \t]*// __OPTIONAL_INIT__\r?$', ($initializers -join $lineEnding))
+    if ($imports.Count -eq 0) {
+        $mainText = [regex]::Replace($mainText, '(\r?\n){3,}', "$lineEnding$lineEnding")
+    }
+    if ($initializers.Count -eq 0) {
+        $constructorPattern = "(?m)^  public $([regex]::Escape($MainClass))\(\) \{\r?\n\s*\r?\n  \}"
+        $mainText = [regex]::Replace($mainText, $constructorPattern, "  public $MainClass() {}")
+    }
     Set-Content -LiteralPath $targetMainSource -Value $mainText.TrimEnd() -Encoding UTF8
+    Sort-JavaImports $targetJavaRoot
 
     if ($env:MC_MOD_TEMPLATE_TEST_FAIL_AFTER_WRITE -eq '1') {
         throw '测试注入：写入后故障。'

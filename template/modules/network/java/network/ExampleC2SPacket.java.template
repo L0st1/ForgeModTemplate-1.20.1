@@ -1,26 +1,27 @@
 package __JAVA_PACKAGE__.network;
 
+import java.util.function.Supplier;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.network.NetworkEvent;
 
-import java.util.function.Supplier;
-
 public record ExampleC2SPacket() {
-    public static void encode(ExampleC2SPacket message, FriendlyByteBuf buffer) {}
+  public static void encode(ExampleC2SPacket message, FriendlyByteBuf buffer) {}
 
-    public static ExampleC2SPacket decode(FriendlyByteBuf buffer) {
-        return new ExampleC2SPacket();
-    }
+  public static ExampleC2SPacket decode(FriendlyByteBuf buffer) {
+    return new ExampleC2SPacket();
+  }
 
-    public static void handle(ExampleC2SPacket message, Supplier<NetworkEvent.Context> contextSupplier) {
-        var context = contextSupplier.get();
-        context.enqueueWork(() -> {
-            var sender = context.getSender();
-            if (sender != null) {
-                sender.sendSystemMessage(Component.translatable("message.__MOD_ID__.server_received"));
-            }
+  public static void handle(
+      ExampleC2SPacket message, Supplier<NetworkEvent.Context> contextSupplier) {
+    var context = contextSupplier.get();
+    context.enqueueWork(
+        () -> {
+          var sender = context.getSender();
+          if (sender != null) {
+            sender.sendSystemMessage(Component.translatable("message.__MOD_ID__.server_received"));
+          }
         });
-        context.setPacketHandled(true);
-    }
+    context.setPacketHandled(true);
+  }
 }

@@ -13,6 +13,8 @@ buildscript {
 
 plugins {
     id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+    id 'com.diffplug.spotless' version '8.10.0'
+    id 'pmd'
     id 'eclipse'
     id 'maven-publish'
 }
@@ -66,6 +68,74 @@ minecraft {
 }
 
 sourceSets.main.resources { srcDir 'src/generated/resources' }
+
+spotless {
+    java {
+        target 'src/*/java/**/*.java', 'template/**/*.java.template'
+        googleJavaFormat('1.28.0').skipJavadocFormatting()
+    }
+}
+
+pmd {
+    toolVersion = '7.24.0'
+    consoleOutput = true
+    ruleSets = ['category/java/errorprone.xml']
+    rulesMinimumPriority = 3
+}
+
+tasks.withType(org.gradle.api.plugins.quality.Pmd).configureEach {
+    // High-confidence source rules do not require Forge's generated compile classpath.
+    classpath = files()
+    reports {
+        xml.required = false
+        html.required = true
+    }
+}
+
+tasks.register('qualityCheck') {
+    group = 'verification'
+    description = 'Runs Java formatting and static-analysis checks.'
+    dependsOn 'spotlessCheck', 'pmdMain', 'pmdTest'
+}
+
+tasks.named('check') {
+    dependsOn tasks.named('spotlessCheck')
+}
+
+tasks.register('installGitHooks') {
+    group = 'setup'
+    description = 'Configures this repository to use the versioned Git hooks.'
+    doLast {
+        def hook = file('.githooks/pre-commit')
+        if (!hook.isFile()) {
+            throw new GradleException('Missing .githooks/pre-commit.')
+        }
+        if (!hook.canExecute() && !hook.setExecutable(true)) {
+            throw new GradleException('Unable to mark .githooks/pre-commit as executable.')
+        }
+
+        def output = new ByteArrayOutputStream()
+        def result = exec {
+            commandLine 'git', 'config', '--local', '--get', 'core.hooksPath'
+            standardOutput = output
+            errorOutput = new ByteArrayOutputStream()
+            ignoreExitValue = true
+        }
+        if (result.exitValue != 0 && result.exitValue != 1) {
+            throw new GradleException('Unable to read the local Git hooks path.')
+        }
+
+        def existingPath = output.toString('UTF-8').trim()
+        if (existingPath && existingPath != '.githooks') {
+            throw new GradleException("Local core.hooksPath is already '$existingPath'. Resolve it manually before installing template hooks.")
+        }
+
+        exec {
+            commandLine 'git', 'config', '--local', 'core.hooksPath', '.githooks'
+        }
+        logger.lifecycle('Installed versioned Git hooks from .githooks/.')
+    }
+}
 
 if (mixinEnabled) {
     minecraft.runs.configureEach {

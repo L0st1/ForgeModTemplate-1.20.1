@@ -76,6 +76,44 @@ powershell -ExecutionPolicy Bypass -File .\scripts\build-local.ps1
 ./gradlew build
 ```
 
+## 代码质量与提交前检查
+
+模板使用 Gradle 管理 Java 格式化和静态分析，不需要为项目安装 Node 或 Python。首次运行会下载质量工具，因此耗时通常会比后续运行长。
+
+自动修复 Java 格式：
+
+```powershell
+.\gradlew.bat spotlessApply
+```
+
+```bash
+./gradlew spotlessApply
+```
+
+运行与 CI 相同的格式和静态分析校验：
+
+```powershell
+.\gradlew.bat qualityCheck
+```
+
+```bash
+./gradlew qualityCheck
+```
+
+首次克隆仓库后，安装受版本控制的 pre-commit hook：
+
+```powershell
+.\gradlew.bat installGitHooks
+```
+
+```bash
+./gradlew installGitHooks
+```
+
+安装后，每次 `git commit` 都会运行 `qualityCheck`；校验失败会取消提交，但不会自动修改暂存区。格式问题可运行 `spotlessApply` 修复。若需要卸载本模板安装的 hook 路径，可执行 `git config --unset --local core.hooksPath`。
+
+GitHub Actions 会在所有 PR 创建、重新打开和更新时，以及向默认分支 `master` 推送时运行同一校验。建议在 GitHub 分支保护中将 `Format and static analysis` 设为 `master` 的必需检查。
+
 ## 代理配置
 
 模板默认启用 `127.0.0.1:7890` HTTP/HTTPS 代理，配置位于 `config/network.properties`。不应为了个人环境修改该默认文件；请新建不会被 Git 提交的 `config/network.local.properties`：

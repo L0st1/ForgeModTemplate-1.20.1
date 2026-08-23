@@ -6,9 +6,9 @@ import net.minecraftforge.fml.common.Mod;
 
 @Mod(ExampleMod.MOD_ID)
 public final class ExampleMod {
-    public static final String MOD_ID = "example_mod";
+  public static final String MOD_ID = "example_mod";
 
-    public ExampleMod() {
-        // __OPTIONAL_INIT__
-    }
+  public ExampleMod() {
+    // __OPTIONAL_INIT__
+  }
 }
