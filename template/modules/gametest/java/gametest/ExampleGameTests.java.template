@@ -1,17 +1,18 @@
 package __JAVA_PACKAGE__.gametest;
 
+import static __JAVA_PACKAGE__.__MAIN_CLASS__.MOD_ID;
+
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraftforge.gametest.GameTestHolder;
 
-import static __JAVA_PACKAGE__.__MAIN_CLASS__.MOD_ID;
-
+@SuppressWarnings("PMD.TestClassWithoutTestCases")
 @GameTestHolder(MOD_ID)
 public final class ExampleGameTests {
-    private ExampleGameTests() {}
+  private ExampleGameTests() {}
 
-    @GameTest(template = "empty")
-    public static void templateLoads(GameTestHelper helper) {
-        helper.succeed();
-    }
+  @GameTest(template = "empty")
+  public static void templateLoads(GameTestHelper helper) {
+    helper.succeed();
+  }
 }

@@ -8,8 +8,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(LivingEntity.class)
 public abstract class ExampleMixin {
-    @Inject(method = "tick", at = @At("TAIL"))
-    private void exampleMod$afterTick(CallbackInfo callbackInfo) {
-        // 在此添加不会改变默认行为的示例注入逻辑。
-    }
+  @Inject(method = "tick", at = @At("TAIL"))
+  private void exampleMod$afterTick(CallbackInfo callbackInfo) {
+    // 在此添加不会改变默认行为的示例注入逻辑。
+  }
 }

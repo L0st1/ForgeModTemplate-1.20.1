@@ -3,18 +3,16 @@ package __JAVA_PACKAGE__.config;
 import net.minecraftforge.common.ForgeConfigSpec;
 
 public final class ExampleConfig {
-    public static final ForgeConfigSpec SPEC;
-    public static final ForgeConfigSpec.BooleanValue ENABLE_EXAMPLE;
+  public static final ForgeConfigSpec SPEC;
+  public static final ForgeConfigSpec.BooleanValue ENABLE_EXAMPLE;
 
-    static {
-        var builder = new ForgeConfigSpec.Builder();
-        builder.push("general");
-        ENABLE_EXAMPLE = builder
-                .comment("是否启用示例配置项")
-                .define("enableExample", true);
-        builder.pop();
-        SPEC = builder.build();
-    }
+  static {
+    var builder = new ForgeConfigSpec.Builder();
+    builder.push("general");
+    ENABLE_EXAMPLE = builder.comment("是否启用示例配置项").define("enableExample", true);
+    builder.pop();
+    SPEC = builder.build();
+  }
 
-    private ExampleConfig() {}
+  private ExampleConfig() {}
 }
